@@ -2,11 +2,41 @@ const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const config = require("../config/config");
 const User = require("../models/User");
 
 const registerValidation = require("../validaton/register");
+const loginValidation = require("../validaton/login");
 
 const router = express.Router();
+
+router.post("/login", async function(req, res) {
+  try {
+    const { errors, isValid } = loginValidation(req.body);
+    if (!isValid) {
+      return res.status(400).json({ error: errors });
+    }
+    const username = req.body.username;
+    const password = req.body.password;
+    const dbUser = await User.findOne({ username });
+    if (!dbUser) {
+      return res.status(404).json({ error: "Incorrect username" });
+    }
+    const matched = await bcrypt.compare(password, dbUser.password);
+    if (!matched) {
+      return res.status(400).json({ error: "Incorrect password" });
+    }
+    const payload = {
+      name: dbUser.name,
+      username: dbUser.username,
+      email: dbUser.email
+    };
+    const token = jwt.sign(payload, config.secret);
+    return res.status(200).json({ token });
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
 
 router.post("/register", async function(req, res) {
   try {
