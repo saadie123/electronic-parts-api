@@ -1,14 +1,28 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const passport = require("passport");
 const cors = require("cors");
 const morgan = require("morgan");
+const config = require("./config/config");
+
+const authRoutes = require("./routes/authRoutes");
 
 const server = express();
+mongoose.connect(
+  config.mongoDbURL,
+  { useNewUrlParser: true }
+);
+mongoose.Promise = global.Promise;
 
 server.use(cors());
 server.use(morgan("dev"));
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
+
+require("./config/passport")(passport);
+
+server.use("/auth", authRoutes);
 
 const port = process.env.PORT || 8080;
 server.listen(port, function() {
