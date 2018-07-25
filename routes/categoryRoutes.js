@@ -11,7 +11,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   async function(req, res) {
     try {
-      const categories = await Category.find({ user: req.user.id });
+      const categories = await Category.find({ user: req.user.id, sub: false });
       res.json(categories);
     } catch (error) {
       res.status(400).json(error);
@@ -28,7 +28,11 @@ router.get(
   async function(req, res) {
     try {
       const id = req.params.id;
-      const categories = await Category.findOne({ _id: id, user: req.user.id });
+      const categories = await Category.findOne({
+        _id: id,
+        user: req.user.id,
+        sub: false
+      });
       if (!categories) {
         return res.status(404).json({ error: "No category was found" });
       }
@@ -53,8 +57,9 @@ router.post(
         description: req.body.description,
         user: req.user.id
       });
-      let category = await newCategory.save();
       if (parentCategory) {
+        newCategory.sub = true;
+        let category = await newCategory.save();
         let updatedCategory = await Category.findByIdAndUpdate(
           parentCategory,
           { $push: { subCategories: category.id } },
@@ -62,6 +67,7 @@ router.post(
         );
         return res.json(updatedCategory);
       }
+      let category = await newCategory.save();
       res.json(category);
     } catch (error) {
       res.status(400).json(error);

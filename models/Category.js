@@ -18,6 +18,10 @@ const categorySchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users"
+  },
+  sub: {
+    type: Boolean,
+    default: false
   }
 });
 
