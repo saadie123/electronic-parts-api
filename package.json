@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Electronic parts API built with Nodejs, Express",
   "main": "index.js",
+  "engines": {
+    "node": "8.11.3"
+  },
   "scripts": {
     "start": "node index.js",
     "server": "nodemon index.js"

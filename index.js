@@ -7,6 +7,7 @@ const morgan = require("morgan");
 const config = require("./config/config");
 
 const authRoutes = require("./routes/authRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
 const server = express();
 mongoose.connect(
@@ -22,7 +23,8 @@ server.use(bodyParser.urlencoded({ extended: false }));
 
 require("./config/passport")(passport);
 
-server.use("/auth", authRoutes);
+server.use("/api/auth", authRoutes);
+server.use("/api/categories", categoryRoutes);
 
 const port = process.env.PORT || 8080;
 server.listen(port, function() {

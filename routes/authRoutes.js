@@ -10,6 +10,9 @@ const loginValidation = require("../validaton/login");
 
 const router = express.Router();
 
+// Route: /api/auth/login
+// Method: POST
+// Request Body: username, password
 router.post("/login", async function(req, res) {
   try {
     const { errors, isValid } = loginValidation(req.body);
@@ -27,17 +30,21 @@ router.post("/login", async function(req, res) {
       return res.status(400).json({ error: "Incorrect password" });
     }
     const payload = {
+      id: dbUser.id,
       name: dbUser.name,
       username: dbUser.username,
       email: dbUser.email
     };
-    const token = jwt.sign(payload, config.secret);
+    const token = jwt.sign(payload, config.secret, { expiresIn: "1h" });
     return res.status(200).json({ token });
   } catch (error) {
     res.status(400).json(error);
   }
 });
 
+// Route: /api/auth/register
+// Method: POST
+// Request Body: name, username, email, password
 router.post("/register", async function(req, res) {
   try {
     const { errors, isValid } = registerValidation(req.body);
