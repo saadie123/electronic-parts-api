@@ -103,6 +103,12 @@ const storage = multer.diskStorage({
     if (file.mimetype === "application/pdf") {
       directory = "./attachments/pdf/";
     }
+    if (!fs.existsSync(path.join(__dirname, "..", "attachments"))) {
+      fs.mkdirSync(path.join(__dirname, "..", "attachments"));
+    }
+    if (!fs.existsSync(path.join(__dirname, "..", directory))) {
+      fs.mkdirSync(path.join(__dirname, "..", directory));
+    }
     cb(null, directory);
   },
   filename: function(req, file, cb) {
