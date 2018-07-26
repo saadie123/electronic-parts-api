@@ -8,6 +8,7 @@ const config = require("./config/config");
 
 const authRoutes = require("./routes/authRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const itemRoutes = require("./routes/itemRoutes");
 
 const server = express();
 mongoose.connect(
@@ -25,6 +26,7 @@ require("./config/passport")(passport);
 
 server.use("/api/auth", authRoutes);
 server.use("/api/categories", categoryRoutes);
+server.use("/api/items", itemRoutes);
 
 const port = process.env.PORT || 8080;
 server.listen(port, function() {

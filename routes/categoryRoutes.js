@@ -12,7 +12,7 @@ router.get(
   async function(req, res) {
     try {
       const categories = await Category.find({ user: req.user.id, sub: false });
-      res.json(categories);
+      res.json({ rootCategory: categories });
     } catch (error) {
       res.status(400).json(error);
     }
@@ -51,6 +51,15 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async function(req, res) {
     try {
+      let oldCategory = await Category.findOne({
+        name: req.body.name,
+        user: req.user.id
+      });
+      if (oldCategory) {
+        return res
+          .status(400)
+          .json({ error: "You already have this category" });
+      }
       let parentCategory = req.body.parentCategory;
       let newCategory = new Category({
         name: req.body.name,
@@ -119,6 +128,12 @@ router.delete(
       });
       if (!category) {
         return res.status(404).json({ error: "Category was not found" });
+      }
+      if (category.subCategories.length > 0) {
+        for (let sub of category.subCategories) {
+          await Category.findByIdAndRemove(sub.id);
+          await
+        }
       }
       await Category.findOneAndUpdate(
         { subCategories: { $in: [category.id] } },
