@@ -132,7 +132,6 @@ router.delete(
       if (category.subCategories.length > 0) {
         for (let sub of category.subCategories) {
           await Category.findByIdAndRemove(sub.id);
-          await
         }
       }
       await Category.findOneAndUpdate(
