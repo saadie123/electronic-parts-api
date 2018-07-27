@@ -28,7 +28,7 @@ server.use("/api/auth", authRoutes);
 server.use("/api/categories", categoryRoutes);
 server.use("/api/items", itemRoutes);
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8000;
 server.listen(port, function() {
   console.log(`Server running on port ${port}`);
 });
