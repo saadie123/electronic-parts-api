@@ -99,6 +99,9 @@ router.post("/google", function(req, res) {
     });
 });
 
+// Route: /api/auth/facebook
+// Method: POST
+// Request Body: access_token
 router.post("/facebook", function(req, res) {
   const token = req.body.access_token;
   axios

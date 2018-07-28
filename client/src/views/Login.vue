@@ -10,14 +10,10 @@
               </div>
               <div class="form-group">
                   <label for="">Password</label>
-                  <input v-model="password" type="text" class="form-control">
+                  <input v-model="password" type="password" class="form-control">
               </div>
               <button type="submit" @click="onLogin($event)" class="btn btn-primary">Login</button>
           </form>
-          <br>
-          <button class="btn btn-danger btn-block" @click="socialLogin('google')">Login with Google</button>
-          <button class="btn btn-primary btn-block">Login with Facebook</button>
-          <button class="btn btn-info btn-block ">Login with Twitter</button>
       </div>
   </div>
 </template>
@@ -42,9 +38,7 @@ export default {
         router: this.$router
       });
     },
-    socialLogin(provider) {
-      
-    }
+    socialLogin(provider) {}
   }
 };
 </script>

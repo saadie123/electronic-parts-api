@@ -1,3 +1,5 @@
+const path = require("path");
+const fs = require("fs");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -16,7 +18,9 @@ mongoose.connect(
   { useNewUrlParser: true }
 );
 mongoose.Promise = global.Promise;
-
+if (fs.existsSync(path.join(__dirname, "public"))) {
+  server.use(express.static(path.join(__dirname, "public")));
+}
 server.use(cors());
 server.use(morgan("dev"));
 server.use(bodyParser.json());

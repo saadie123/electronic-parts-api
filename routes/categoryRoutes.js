@@ -11,7 +11,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   async function(req, res) {
     try {
-      const categories = await Category.find({ user: req.user.id, sub: false });
+      const categories = await Category.find({ user: req.user.id });
       res.json({ rootCategory: categories });
     } catch (error) {
       res.status(400).json(error);
@@ -30,8 +30,7 @@ router.get(
       const id = req.params.id;
       const categories = await Category.findOne({
         _id: id,
-        user: req.user.id,
-        sub: false
+        user: req.user.id
       });
       if (!categories) {
         return res.status(404).json({ error: "No category was found" });

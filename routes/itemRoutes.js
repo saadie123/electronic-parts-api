@@ -73,26 +73,22 @@ router.get(
 // Route: /api/items/:id/attachment/:fileExt
 // Method: GET
 // Route Params: id(itemId), fileName
-router.get(
-  "/:id/attachment/:fileName",
-  passport.authenticate("jwt", { session: false }),
-  async function(req, res) {
-    try {
-      const id = req.params.id;
-      const fileName = req.params.fileName;
-      const item = await Item.findOne({ _id: id, user: req.user.id });
-      if (!item) {
-        return res.status(404).json({ error: "No item was found" });
-      }
-      let attachment = item.attachments.find(file => {
-        return file.fileName === fileName;
-      });
-      res.sendFile(path.join(__dirname, "..", attachment.filePath));
-    } catch (error) {
-      res.status(400).json(error);
+router.get("/:id/attachment/:fileName", async function(req, res) {
+  try {
+    const id = req.params.id;
+    const fileName = req.params.fileName;
+    const item = await Item.findOne({ _id: id });
+    if (!item) {
+      return res.status(404).json({ error: "No item was found" });
     }
+    let attachment = item.attachments.find(file => {
+      return file.fileName === fileName;
+    });
+    res.sendFile(path.join(__dirname, "..", attachment.filePath));
+  } catch (error) {
+    res.status(400).json(error);
   }
-);
+});
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -125,30 +121,33 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   upload.array("attachments"),
   async function(req, res) {
+    console.log(req.files);
     try {
       const oldItem = await Item.findOne({ name: req.body.name });
       if (oldItem) {
-        let file = oldItem.attachments.find(item => {
-          let found = false;
-          for (let file of req.files) {
-            if (item.fileName === file.originalname) {
-              found = true;
+        if (oldItem.attachments.length > 0) {
+          let file = oldItem.attachments.find(item => {
+            let found = false;
+            for (let file of req.files) {
+              if (item.fileName === file.originalname) {
+                found = true;
+              }
             }
-          }
-          return found;
-        });
-        if (!file) {
-          req.files.forEach(file => {
-            fs.unlink(path.join(__dirname, "..", file.path), err => {
-              if (err) return res.status(400).json(err);
-            });
+            return found;
           });
+          if (!file) {
+            req.files.forEach(file => {
+              fs.unlink(path.join(__dirname, "..", file.path), err => {
+                if (err) return res.status(400).json(err);
+              });
+            });
+          }
         }
         return res.status(400).json({ error: "You already have this item" });
       }
       const newItem = new Item({
         name: req.body.name,
-        quantity: req.body.quantity,
+        quantity: parseInt(req.body.quantity),
         description: req.body.description,
         category: req.body.category,
         location: req.body.location,
@@ -157,19 +156,21 @@ router.post(
       });
       const item = await newItem.save();
       let attachments = null;
-      if (req.files.length > 0) {
-        attachments = req.files.map(file => {
-          let filenameArray = file.filename.split(".");
-          let fileExt = filenameArray[filenameArray.length - 1];
-          return {
-            fileName: file.originalname,
-            fileExt: fileExt,
-            filePath: file.path,
-            fileURL: `${req.headers.host}/api/items/${item.id}/attachment/${
-              file.originalname
-            }`
-          };
-        });
+      if (req.files) {
+        if (req.files.length > 0) {
+          attachments = req.files.map(file => {
+            let filenameArray = file.filename.split(".");
+            let fileExt = filenameArray[filenameArray.length - 1];
+            return {
+              fileName: file.originalname,
+              fileExt: fileExt,
+              filePath: file.path,
+              fileURL: `${req.headers.host}/api/items/${item.id}/attachment/${
+                file.originalname
+              }`
+            };
+          });
+        }
       }
       item.attachments = attachments;
       await item.save();
